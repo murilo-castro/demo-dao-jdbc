@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,19 +25,53 @@ public class SellerDaoJDBC implements SellerDao{
 	}
 
 	@Override
-	public void insert(Seller Seller) {
+	public void insert(Seller seller) {
+		PreparedStatement statment = null;
+		
+		try {
+			statment = conn.prepareStatement(
+					"INSERT INTO seller "
+					+ "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
+					+ "VALUES "
+					+ "(?, ?, ?, ?, ?) ",
+					Statement.RETURN_GENERATED_KEYS);
+			
+			statment.setString(1, seller.getName());
+			statment.setString(2, seller.getEmail());
+			statment.setDate(3, new java.sql.Date(seller.getBirthDate().getTime()));
+			statment.setDouble(4, seller.getBaseSalary());
+			statment.setInt(5, seller.getDepartment().getId());
+			
+			int rowsAffected = statment.executeUpdate();
+			
+			if (rowsAffected > 0) {
+				ResultSet resultSet = statment.getGeneratedKeys();
+				
+				if (resultSet.next()) {
+					int id = resultSet.getInt(1);
+					seller.setId(id);
+					
+				}
+
+				DB.closeResultSet(resultSet);
+			} else {
+				throw new DbException("Unexpected error! No rows affected!");	
+			}
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatement(statment);
+		}
+	}
+
+	@Override
+	public void update(Seller seller) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void update(Seller Seller) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void deleteById(Integer SellerId) {
+	public void deleteById(Integer sellerId) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -80,7 +115,7 @@ public class SellerDaoJDBC implements SellerDao{
 		seller.setEmail(resultSet.getString("Email"));
 		seller.setBaseSalary(resultSet.getDouble("BaseSalary"));
 		seller.setBirthDate(resultSet.getDate("BirthDate"));
-		seller.setDepartmentId(department);
+		seller.setDepartment(department);
 		
 		return seller;
 	}
