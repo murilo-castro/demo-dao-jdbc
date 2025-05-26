@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import db.DB;
@@ -13,7 +14,6 @@ import model.dao.DepartmentDao;
 import model.entities.Department;
 
 public class DepartmentDaoJDBC implements DepartmentDao {
-
 	private Connection conn;
 
 	public DepartmentDaoJDBC(Connection conn) {
@@ -59,20 +59,57 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 
 	@Override
 	public void deleteById(Integer departmentId) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public Department findDepartmentById(Integer departmentId) {
-		// TODO Auto-generated method stub
-		return null;
+		PreparedStatement statment = null;
+		ResultSet resultSet = null;
+		
+		try {
+			statment = conn.prepareStatement("SELECT * FROM department WHERE Id = ?");
+			
+			statment.setInt(1, departmentId);
+			resultSet = statment.executeQuery();
+			
+			if (resultSet.next()) {
+				return instantiateDepartment(resultSet); 
+			}
+			
+			return null;
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatement(statment);
+			DB.closeResultSet(resultSet);
+		}
 	}
 
 	@Override
-	public List<Department> findDepartmentsAll() {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Department> findAllDepartments() {
+		PreparedStatement statment = null;
+		ResultSet resultSet = null;
+		
+		try {
+			statment = conn.prepareStatement("SELECT * FROM department");
+			resultSet = statment.executeQuery();
+			List<Department> departments = new ArrayList<Department>();
+			while (resultSet.next()) {
+				departments.add(instantiateDepartment(resultSet));
+			}
+			
+			return departments;
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatement(statment);
+			DB.closeResultSet(resultSet);
+		}
+	}
+	
+	private Department instantiateDepartment(ResultSet resultSet) throws SQLException {
+		return new Department(resultSet.getInt("Id"), resultSet.getString("Name"));
 	}
 
 }

@@ -50,6 +50,15 @@ public class Program {
 		departmentDao.insert(newDepartment);
 		System.out.println("Inserted! New department: " + newDepartment + ", new Id: " + newDepartment.getId());
 		
+		System.out.println("\n ==== Test 8: Seller findSellerById ====");		
+		department = departmentDao.findDepartmentById(2);		
+		System.out.println(department);
+		
+		System.out.println("\n ==== Test 3: Seller findAllSellers ====");
+		List<Department> departments = departmentDao.findAllDepartments();		
+		departments.forEach(System.out::println);
+		
+		
 		scanner.close();
 	}
 }
