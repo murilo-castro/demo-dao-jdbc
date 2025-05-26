@@ -2,15 +2,20 @@ package application;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 
 import model.dao.DaoFactory;
+import model.dao.DepartmentDao;
 import model.dao.SellerDao;
 import model.entities.Department;
 import model.entities.Seller;
 
 public class Program {
 	public static void main(String[] args) {
+		Scanner scanner = new Scanner(System.in);
+		
 		SellerDao sellerDao = DaoFactory.creatSellerDao();
+		DepartmentDao departmentDao = DaoFactory.createDepartmentDao();
 		
 		System.out.println("==== Test 1: Seller findSellerById ====");		
 		Seller seller = sellerDao.findSellerById(2);		
@@ -39,5 +44,12 @@ public class Program {
 		System.out.println("\n ==== Test 6: Seller deleteSellerById ====");
 		sellerDao.deleteById(13);
 		System.out.println("Delete completed");
+		
+		System.out.println("\n ==== Test 7: Department insert ====");
+		Department newDepartment = new Department(null, "Tools");
+		departmentDao.insert(newDepartment);
+		System.out.println("Inserted! New department: " + newDepartment + ", new Id: " + newDepartment.getId());
+		
+		scanner.close();
 	}
 }
